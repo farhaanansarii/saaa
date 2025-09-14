@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐦 Bird Game 🎂</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Poppins:wght@300;400;600;700&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #87CEEB 0%, #98FB98 50%, #FFB6C1 100%);
+      background-size: 400% 400%;
+      animation: skyAnimation 10s ease infinite;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    @keyframes skyAnimation {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* Floating clouds */
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50px;
+      opacity: 0.7;
+      animation: cloudFloat 20s linear infinite;
+    }
+
+    .cloud::before,
+    .cloud::after {
+      content: '';
+      position: absolute;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50px;
+    }
+
+    .cloud1 {
+      width: 80px;
+      height: 40px;
+      top: 20%;
+      left: -100px;
+    }
+
+    .cloud1::before {
+      width: 50px;
+      height: 50px;
+      top: -25px;
+      left: 10px;
+    }
+
+    .cloud1::after {
+      width: 60px;
+      height: 40px;
+      top: -15px;
+      right: 10px;
+    }
+
+    .cloud2 {
+      width: 60px;
+      height: 30px;
+      top: 10%;
+      left: -80px;
+      animation-delay: -10s;
+    }
+
+    .cloud2::before {
+      width: 40px;
+      height: 40px;
+      top: -20px;
+      left: 5px;
+    }
+
+    .cloud2::after {
+      width: 50px;
+      height: 30px;
+      top: -10px;
+      right: 5px;
+    }
+
+    @keyframes cloudFloat {
+      from { transform: translateX(0); }
+      to { transform: translateX(calc(100vw + 200px)); }
+    }
+
+    /* Game container */
+    .game-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Game canvas */
+    #gameCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    /* UI overlay */
+    .ui-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Score display */
+    .score-display {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .score {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(2rem, 8vw, 4rem);
+      color: white;
+      text-shadow: 
+        3px 3px 0px #ff6b6b,
+        -1px -1px 0px #4ecdc4,
+        1px -1px 0px #4ecdc4,
+        -1px 1px 0px #4ecdc4,
+        1px 1px 0px #4ecdc4;
+      animation: scoreFloat 2s ease-in-out infinite;
+    }
+
+    @keyframes scoreFloat {
+      0%, 100% { transform: translateX(-50%) translateY(0px); }
+      50% { transform: translateX(-50%) translateY(-10px); }
+    }
+
+    /* Start screen */
+    .start-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .game-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #ffe66d, #ff6b9d);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: rainbowText 3s ease-in-out infinite;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    @keyframes rainbowText {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .subtitle {
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      color: white;
+      text-align: center;
+      margin-bottom: 40px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .start-btn {
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+      border: none;
+      padding: 15px 40px;
+      font-size: clamp(1rem, 4vw, 1.3rem);
+      font-weight: 700;
+      color: white;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      animation: pulse 2s infinite;
+      pointer-events: all;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .start-btn:hover {
+      transform: translateY(-5px) scale(1.1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .start-btn:active {
+      transform: translateY(-2px) scale(1.05);
+    }
+
+    /* Game over screen */
+    .game-over-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(15px);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      animation: gameOverSlide 0.5s ease-out;
+    }
+
+    @keyframes gameOverSlide {
+      from { 
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to { 
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .game-over-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      color: #ff6b6b;
+      text-shadow: 3px 3px 0px #fff;
+      margin-bottom: 20px;
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .final-score {
+      font-size: clamp(1.2rem, 4vw, 2rem);
+      color: white;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .best-score {
+      font-size: clamp(1rem, 3vw, 1.3rem);
+      color: #ffe66d;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .restart-btn {
+      background: linear-gradient(45deg, #4ecdc4, #44a08d);
+      border: none;
+      padding: 12px 35px;
+      font-size: clamp(0.9rem, 3vw, 1.1rem);
+      font-weight: 600;
+      color: white;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      pointer-events: all;
+    }
+
+    .restart-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Instructions */
+    .instructions {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      text-align: center;
+      font-size: clamp(0.8rem, 2.5vw, 1rem);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      animation: blink 2s infinite;
+      pointer-events: none;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0.5; }
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .score {
+        top: 20px;
+      }
+      
+      .instructions {
+        bottom: 20px;
+      }
+    }
+
+    /* Particle effects */
+    .particle-explosion {
+      position: absolute;
+      pointer-events: none;
+      font-size: 1.5rem;
+      animation: particleExplosion 1s ease-out forwards;
+    }
+
+    @keyframes particleExplosion {
+      0% {
+        transform: scale(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(2) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating clouds -->
+  <div class="cloud cloud1"></div>
+  <div class="cloud cloud2"></div>
+
+  <div class="game-container">
+    <!-- Game canvas -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- UI overlay -->
+    <div class="ui-overlay">
+      <!-- Score display -->
+      <div class="score-display">
+        <div class="score" id="score">0</div>
+      </div>
+
+      <!-- Instructions -->
+      <div class="instructions" id="instructions">
+        🐦 TAP TO FLY • AVOID PIPES • COLLECT BIRTHDAY CAKES 🎂
+      </div>
+    </div>
+
+    <!-- Start screen -->
+    <div class="start-screen" id="startScreen">
+      <h1 class="game-title">🐦 Birthday Bird 🎂</h1>
+      <p class="subtitle">Tap to fly through the birthday celebration!</p>
+      <button class="start-btn" onclick="startGame()">Start Flying!</button>
+    </div>
+
+    <!-- Game over screen -->
+    <div class="game-over-screen" id="gameOverScreen">
+      <h2 class="game-over-title">🎯 Game Over!</h2>
+      <div class="final-score">Score: <span id="finalScore">0</span></div>
+      <div class="best-score">Best: <span id="bestScore">0</span></div>
+      <button class="restart-btn" onclick="restartGame()">Fly Again!</button>
+    </div>
+  </div>
+
+  <script>
+    // Game variables
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Game state
+    let gameState = {
+      playing: false,
+      score: 0,
+      bestScore: localStorage.getItem('birthdayBirdBest') || 0
+    };
+
+    // Bird object
+    const bird = {
+      x: 100,
+      y: canvas.height / 2,
+      width: 40,
+      height: 30,
+      velocity: 0,
+      gravity: 0.5,
+      jump: -8,
+      rotation: 0
+    };
+
+    // Pipes array
+    let pipes = [];
+    const pipeGap = 200;
+    const pipeWidth = 60;
+
+    // Particles array for effects
+    let particles = [];
+
+    // Birthday cake collectibles
+    let cakes = [];
+
+    // Game loop
+    function gameLoop() {
+      if (!gameState.playing) return;
+      
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Update game state
+    function update() {
+      // Update bird
+      bird.velocity += bird.gravity;
+      bird.y += bird.velocity;
+      
+      // Bird rotation based on velocity
+      bird.rotation = Math.min(Math.max(bird.velocity * 3, -30), 90);
+
+      // Generate pipes
+      if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 300) {
+        generatePipe();
+      }
+
+      // Update pipes
+      pipes.forEach((pipe, index) => {
+        pipe.x -= 3;
+        
+        // Remove pipes that are off screen
+        if (pipe.x + pipeWidth < 0) {
+          pipes.splice(index, 1);
+        }
+        
+        // Score when passing pipe
+        if (!pipe.scored && pipe.x + pipeWidth < bird.x) {
+          pipe.scored = true;
+          gameState.score++;
+          updateScore();
+          createScoreEffect();
+        }
+      });
+
+      // Generate birthday cakes
+      if (Math.random() < 0.005 && cakes.length < 2) {
+        generateCake();
+      }
+
+      // Update cakes
+      cakes.forEach((cake, index) => {
+        cake.x -= 3;
+        cake.rotation += 5;
+        
+        // Remove cakes that are off screen
+        if (cake.x < -50) {
+          cakes.splice(index, 1);
+        }
+        
+        // Check cake collection
+        if (checkCollision(bird, cake)) {
+          cakes.splice(index, 1);
+          gameState.score += 5;
+          updateScore();
+          createCakeEffect(cake.x, cake.y);
+        }
+      });
+
+      // Update particles
+      particles.forEach((particle, index) => {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+        particle.life--;
+        
+        if (particle.life <= 0) {
+          particles.splice(index, 1);
+        }
+      });
+
+      // Check collisions
+      checkCollisions();
+    }
+
+    // Draw everything
+    function draw() {
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw pipes
+      ctx.fillStyle = '#228B22';
+      pipes.forEach(pipe => {
+        // Top pipe
+        ctx.fillRect(pipe.x, 0, pipeWidth, pipe.topHeight);
+        // Bottom pipe
+        ctx.fillRect(pipe.x, pipe.topHeight + pipeGap, pipeWidth, canvas.height);
+        
+        // Pipe caps
+        ctx.fillStyle = '#32CD32';
+        ctx.fillRect(pipe.x - 5, pipe.topHeight - 30, pipeWidth + 10, 30);
+        ctx.fillRect(pipe.x - 5, pipe.topHeight + pipeGap, pipeWidth + 10, 30);
+        ctx.fillStyle = '#228B22';
+      });
+
+      // Draw birthday cakes
+      cakes.forEach(cake => {
+        ctx.save();
+        ctx.translate(cake.x + 15, cake.y + 15);
+        ctx.rotate(cake.rotation * Math.PI / 180);
+        ctx.font = '30px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('🎂', 0, 10);
+        ctx.restore();
+      });
+
+      // Draw bird
+      ctx.save();
+      ctx.translate(bird.x + bird.width/2, bird.y + bird.height/2);
+      ctx.rotate(bird.rotation * Math.PI / 180);
+      
+      // Bird body (rounded shape with festive colors)
+      ctx.fillStyle = '#FF69B4'; // Hot pink for birthday theme
+      ctx.beginPath();
+      ctx.ellipse(0, 0, bird.width/2, bird.height/2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Party hat
+      ctx.fillStyle = '#4ecdc4'; // Turquoise hat
+      ctx.beginPath();
+      ctx.moveTo(-bird.width/4, -bird.height/2 - 15);
+      ctx.lineTo(bird.width/4, -bird.height/2 - 15);
+      ctx.lineTo(0, -bird.height/2 - 30);
+      ctx.closePath();
+      ctx.fill();
+      // Pom-pom on hat
+      ctx.fillStyle = '#ffe66d'; // Yellow pom-pom
+      ctx.beginPath();
+      ctx.arc(0, -bird.height/2 - 30, 5, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Bird wing (curved shape)
+      ctx.fillStyle = '#FFD700'; // Golden wing
+      ctx.beginPath();
+      ctx.moveTo(-bird.width/3, 0);
+      ctx.quadraticCurveTo(-bird.width/2, -bird.height/4, -bird.width/3, -bird.height/2);
+      ctx.quadraticCurveTo(-bird.width/6, -bird.height/4, -bird.width/3, 0);
+      ctx.fill();
+      
+      // Bird eye
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.arc(bird.width/4, -bird.height/4, 5, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.fillStyle = 'black';
+      ctx.beginPath();
+      ctx.arc(bird.width/4 + 2, -bird.height/4, 2, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Beak
+      ctx.fillStyle = '#FFA500';
+      ctx.beginPath();
+      ctx.moveTo(bird.width/2, -bird.height/6);
+      ctx.lineTo(bird.width/2 + 10, 0);
+      ctx.lineTo(bird.width/2, bird.height/6);
+      ctx.closePath();
+      ctx.fill();
+      
+      ctx.restore();
+
+      // Draw particles
+      particles.forEach(particle => {
+        ctx.save();
+        ctx.globalAlpha = particle.life / particle.maxLife;
+        ctx.fillStyle = particle.color;
+        ctx.fillRect(particle.x, particle.y, 3, 3);
+        ctx.restore();
+      });
+    }
+
+    // Generate pipe
+    function generatePipe() {
+      const topHeight = Math.random() * (canvas.height - pipeGap - 100) + 50;
+      pipes.push({
+        x: canvas.width,
+        topHeight: topHeight,
+        scored: false
+      });
+    }
+
+    // Generate birthday cake
+    function generateCake() {
+      cakes.push({
+        x: canvas.width + 100,
+        y: Math.random() * (canvas.height - 200) + 100,
+        width: 30,
+        height: 30,
+        rotation: 0
+      });
+    }
+
+    // Check collisions
+    function checkCollisions() {
+      // Ground and ceiling
+      if (bird.y + bird.height >= canvas.height || bird.y <= 0) {
+        gameOver();
+        return;
+      }
+
+      // Pipe collisions
+      pipes.forEach(pipe => {
+        if (bird.x < pipe.x + pipeWidth &&
+            bird.x + bird.width > pipe.x &&
+            (bird.y < pipe.topHeight || bird.y + bird.height > pipe.topHeight + pipeGap)) {
+          gameOver();
+        }
+      });
+    }
+
+    // Check collision between two objects
+    function checkCollision(obj1, obj2) {
+      return obj1.x < obj2.x + obj2.width &&
+             obj1.x + obj1.width > obj2.x &&
+             obj1.y < obj2.y + obj2.height &&
+             obj1.y + obj1.height > obj2.y;
+    }
+
+    // Create score effect
+    function createScoreEffect() {
+      for (let i = 0; i < 10; i++) {
+        particles.push({
+          x: bird.x + bird.width/2,
+          y: bird.y + bird.height/2,
+          vx: (Math.random() - 0.5) * 6,
+          vy: (Math.random() - 0.5) * 6,
+          color: '#FFD700',
+          life: 30,
+          maxLife: 30
+        });
+      }
+    }
+
+    // Create cake collection effect
+    function createCakeEffect(x, y) {
+      const effects = ['🎉', '✨', '🌟', '💫'];
+      const effect = effects[Math.floor(Math.random() * effects.length)];
+      
+      const particle = document.createElement('div');
+      particle.className = 'particle-explosion';
+      particle.innerHTML = effect;
+      particle.style.left = x + 'px';
+      particle.style.top = y + 'px';
+      document.body.appendChild(particle);
+      
+      setTimeout(() => particle.remove(), 1000);
+      
+      for (let i = 0; i < 15; i++) {
+        particles.push({
+          x: x + 15,
+          y: y + 15,
+          vx: (Math.random() - 0.5) * 8,
+          vy: (Math.random() - 0.5) * 8,
+          color: ['#ff6b6b', '#4ecdc4', '#ffe66d', '#ff6b9d'][Math.floor(Math.random() * 4)],
+          life: 40,
+          maxLife: 40
+        });
+      }
+    }
+
+    // Update score display
+    function updateScore() {
+      document.getElementById('score').textContent = gameState.score;
+      
+      // Animate score
+      const scoreElement = document.getElementById('score');
+      scoreElement.style.transform = 'translateX(-50%) scale(1.2)';
+      scoreElement.style.color = '#ffe66d';
+      setTimeout(() => {
+        scoreElement.style.transform = 'translateX(-50%) scale(1)';
+        scoreElement.style.color = 'white';
+      }, 200);
+    }
+
+    // Start game
+    function startGame() {
+      document.getElementById('startScreen').style.display = 'none';
+      document.getElementById('instructions').style.display = 'none';
+      gameState.playing = true;
+      gameState.score = 0;
+      
+      // Reset bird
+      bird.y = canvas.height / 2;
+      bird.velocity = 0;
+      
+      // Clear arrays
+      pipes = [];
+      particles = [];
+      cakes = [];
+      
+      updateScore();
+      gameLoop();
+    }
+
+    // Game over
+    function gameOver() {
+      gameState.playing = false;
+      
+      // Update best score
+      if (gameState.score > gameState.bestScore) {
+        gameState.bestScore = gameState.score;
+        localStorage.setItem('birthdayBirdBest', gameState.bestScore);
+      }
+      
+      // Show game over screen
+      document.getElementById('finalScore').textContent = gameState.score;
+      document.getElementById('bestScore').textContent = gameState.bestScore;
+      document.getElementById('gameOverScreen').style.display = 'flex';
+    }
+
+    // Restart game
+    function restartGame() {
+      document.getElementById('gameOverScreen').style.display = 'none';
+      startGame();
+    }
+
+    // Input handling
+    function jump() {
+      if (gameState.playing) {
+        bird.velocity = bird.jump;
+      }
+    }
+
+    // Event listeners
+    canvas.addEventListener('click', jump);
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      jump();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        jump();
+      }
+    });
+
+    // Initialize best score display
+    document.getElementById('bestScore').textContent = gameState.bestScore;
+  </script>
+</body>
+</html>

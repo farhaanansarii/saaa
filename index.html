@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        .bg-peach {
+            background-color: #FDDCC8;
+        }
+        .text-purple-dark {
+            color: #4A154B;
+        }
+        .bg-purple-dark {
+            background-color: #4A154B;
+        }
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        .floating-delayed {
+            animation: float 3s ease-in-out infinite 1.5s;
+        }
+        .floating-slow {
+            animation: float 4s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .sparkle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(45deg, #FFD700, #FFF);
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .sparkle::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, transparent, rgba(255,215,0,0.3), transparent);
+            border-radius: 50%;
+        }
+        .diagonal-stripes {
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.8) 10px,
+                rgba(255,255,255,0.8) 20px
+            );
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .floating {
+                animation: float 2s ease-in-out infinite;
+            }
+            .floating-delayed {
+                animation: float 2s ease-in-out infinite 1s;
+            }
+            .floating-slow {
+                animation: float 2.5s ease-in-out infinite;
+            }
+            @keyframes float {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-10px); }
+            }
+        }
+
+        /* Hide decorative elements on very small screens */
+        @media (max-width: 480px) {
+            .mobile-hide {
+                display: none !important;
+            }
+        }
+
+        /* Mobile menu styles */
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-peach min-h-screen overflow-x-hidden">
+    <!-- Navigation Bar -->
+    <nav class="flex items-center justify-between px-4 sm:px-8 py-4 sm:py-6 relative z-10">
+        <!-- Logo -->
+        <div class="flex items-center">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-purple-dark rounded-lg flex items-center justify-center mr-2 sm:mr-3">
+                <div class="w-4 h-4 sm:w-6 sm:h-6 bg-white rounded-sm transform rotate-45"></div>
+            </div>
+            <span class="font-bold text-purple-dark text-sm sm:text-lg">FS Ansari </span>
+        </div>
+        
+        <!-- Desktop Menu Items -->
+        <div class="hidden lg:flex space-x-8">
+            <a href="#" class="text-purple-dark hover:text-purple-600 transition-colors font-medium">Home</a>
+            <a href="game.html" class="text-purple-dark hover:text-purple-600 transition-colors font-medium">Game</a>
+            <a href="contact.html" class="text-purple-dark hover:text-purple-600 transition-colors font-medium">Contact Us</a>
+        </div>
+        
+        <!-- Desktop Search Bar -->
+        <div class="hidden sm:flex relative">
+            <input type="text" placeholder="Search" class="bg-purple-dark text-white placeholder-purple-200 px-3 sm:px-4 py-2 pr-8 sm:pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 text-sm sm:text-base w-32 sm:w-auto">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-purple-200 absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button id="mobileMenuBtn" class="sm:hidden flex flex-col space-y-1 p-2" aria-label="Toggle menu">
+            <span class="w-5 h-0.5 bg-purple-dark transition-all duration-300" id="menuLine1"></span>
+            <span class="w-5 h-0.5 bg-purple-dark transition-all duration-300" id="menuLine2"></span>
+            <span class="w-5 h-0.5 bg-purple-dark transition-all duration-300" id="menuLine3"></span>
+        </button>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenu" class="mobile-menu fixed inset-0 bg-purple-dark bg-opacity-95 z-50 sm:hidden">
+        <div class="flex flex-col items-center justify-center h-full space-y-8">
+            <a href="#" class="text-white text-xl font-medium hover:text-purple-200 transition-colors">Home</a>
+            <a href="game.html" class="text-white text-xl font-medium hover:text-purple-200 transition-colors">Game</a>
+            <a href="contact.html" class="text-white text-xl font-medium hover:text-purple-200 transition-colors">Contact Us</a>
+            
+            <!-- Mobile Search -->
+            <div class="relative mt-8">
+                <input type="text" placeholder="Search" class="bg-white text-purple-dark placeholder-purple-400 px-4 py-3 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 w-64">
+                <svg class="w-5 h-5 text-purple-400 absolute right-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Section -->
+    <main class="relative px-4 sm:px-8 py-8 sm:py-12 flex items-center min-h-[calc(100vh-100px)] sm:min-h-[calc(100vh-120px)]">
+        <!-- Background Decorative Elements -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <!-- Large Blue Circle -->
+            <div class="absolute top-10 sm:top-20 right-4 sm:right-20 w-24 h-24 sm:w-48 sm:h-48 bg-blue-300 rounded-full opacity-80 floating mobile-hide"></div>
+            
+            <!-- Purple Circle -->
+            <div class="absolute bottom-16 sm:bottom-32 left-4 sm:left-16 w-16 h-16 sm:w-32 sm:h-32 bg-purple-400 rounded-full opacity-70 floating-delayed"></div>
+            
+            <!-- Pink Circle -->
+            <div class="absolute top-1/2 right-1/4 sm:right-1/3 w-12 h-12 sm:w-24 sm:h-24 bg-pink-300 rounded-full opacity-60 floating-slow mobile-hide"></div>
+            
+            <!-- Small Circles -->
+            <div class="absolute bottom-10 sm:bottom-20 right-1/4 w-4 h-4 sm:w-8 sm:h-8 bg-blue-400 rounded-full floating"></div>
+            <div class="absolute top-1/4 left-1/4 w-3 h-3 sm:w-6 sm:h-6 bg-purple-300 rounded-full floating-delayed mobile-hide"></div>
+            <div class="absolute top-20 sm:top-40 left-1/4 sm:left-1/3 w-5 h-5 sm:w-10 sm:h-10 bg-pink-400 rounded-full floating"></div>
+            
+            <!-- Diamond Shapes -->
+            <div class="absolute top-1/4 right-1/2 w-4 h-4 sm:w-8 sm:h-8 bg-white transform rotate-45 opacity-80 floating-slow mobile-hide"></div>
+            <div class="absolute bottom-1/3 left-1/2 w-3 h-3 sm:w-6 sm:h-6 bg-blue-200 transform rotate-45 opacity-90 floating mobile-hide"></div>
+            
+            <!-- Diagonal Stripes -->
+            <div class="absolute top-1/2 right-20 sm:right-40 w-12 h-16 sm:w-24 sm:h-32 diagonal-stripes transform rotate-12 opacity-60 floating-delayed mobile-hide"></div>
+            
+            <!-- Small Decorative Elements -->
+            <div class="absolute top-1/3 right-1/4 mobile-hide">
+                <div class="flex space-x-1 sm:space-x-2">
+                    <div class="w-2 h-2 sm:w-3 sm:h-3 bg-blue-400 rounded-full floating"></div>
+                    <div class="w-2 h-2 sm:w-3 sm:h-3 bg-purple-400 rounded-full floating-delayed"></div>
+                    <div class="w-2 h-2 sm:w-3 sm:h-3 bg-pink-400 rounded-full floating-slow"></div>
+                    <div class="w-2 h-2 sm:w-3 sm:h-3 bg-blue-300 rounded-full floating"></div>
+                </div>
+            </div>
+            
+            <!-- Star Shape -->
+            <div class="absolute bottom-1/4 right-1/3 text-purple-400 text-lg sm:text-2xl floating-slow mobile-hide">✦</div>
+        </div>
+
+        <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center relative z-10">
+            <!-- Left Content -->
+            <div class="space-y-4 sm:space-y-6 text-center lg:text-left order-2 lg:order-1" id="leftContent">
+                <div class="space-y-2">
+                    <h1 class="text-4xl sm:text-6xl md:text-7xl font-bold text-purple-dark leading-tight">Happy Birthday Dear Sakshi</h1>
+                    <p class="text-xl sm:text-2xl md:text-3xl text-purple-600 font-light">Celebrating the beautiful person you are.</p>
+                </div>
+                
+                <p class="text-purple-dark text-base sm:text-lg leading-relaxed max-w-md mx-auto lg:mx-0">
+                   Today, we honor you and the light you bring to our lives. May your day be as wonderful as you are, filled with memorable moments and a lifetime of happiness.
+                </p>
+                
+                <button class="bg-purple-dark text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-base sm:text-lg hover:bg-purple-600 transition-all duration-300 transform hover:scale-105 shadow-lg" id="getStartedBtn">
+                    Surprise
+                </button>
+            </div>
+
+            <!-- Right Content - Image -->
+            <div class="flex justify-center relative order-1 lg:order-2" id="rightContent">
+                <div class="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96">
+                    <!-- Circular Image Frame -->
+                    <div class="w-full h-full rounded-full overflow-hidden shadow-2xl bg-gradient-to-br from-purple-200 to-pink-200 p-1" id="imageFrame">
+                        <div class="w-full h-full rounded-full overflow-hidden bg-white">
+                            <img src="img/1.jpg" 
+                                 alt="Smiling " 
+                                 class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                    
+                    <!-- Sparkle Container -->
+                    <div class="absolute inset-0 pointer-events-none" id="sparkleContainer"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Photo Memories Section -->
+<section id="Photo" class="w-full bg-[#FDDCC8] py-16 px-8">
+  <div class="max-w-6xl mx-auto text-center">
+    <!-- Heading -->
+    <h2 class="text-3xl md:text-4xl font-bold text-purple-900 mb-10">
+       Special Moments
+    </h2>
+
+    <!-- Photo Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <!-- Photo Item -->
+      <div class="relative group overflow-hidden rounded-2xl shadow-lg">
+        <img src="img/g.jpg"
+             alt="Memory 1"
+             class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110" />
+        <!-- Sparkle Effect -->
+        <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition"></div>
+      </div>
+
+      <div class="relative group overflow-hidden rounded-2xl shadow-lg">
+        <img src="img/d.jpg"
+             alt="Memory 2"
+             class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110" />
+        <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition"></div>
+      </div>
+
+      <div class="relative group overflow-hidden rounded-2xl shadow-lg">
+        <img src="img/e.jpg"
+             alt="Memory 3"
+             class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110" />
+        <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition"></div>
+      </div>
+
+      <div class="relative group overflow-hidden rounded-2xl shadow-lg">
+        <img src="img/f.jpg"
+             alt="Memory 4"
+             class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110" />
+        <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition"></div>
+      </div>
+
+      <div class="relative group overflow-hidden rounded-2xl shadow-lg">
+        <img src="img/g.jpg"
+             class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110" />
+        <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition"></div>
+      </div>
+
+      <div class="relative group overflow-hidden rounded-2xl shadow-lg">
+        <img src="img/7.jpg"
+             alt="Memory 6"
+             class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110" />
+        <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition"></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Romantic Message Section -->
+<section class="w-full bg-[#FDDCC8] py-20 px-8 relative overflow-hidden">
+  <div class="max-w-4xl mx-auto text-center relative z-10">
+    <!-- Heading -->
+    <h2 class="text-3xl md:text-6xl font-bold text-purple-900 mb-6">
+      A Few Words for You
+    </h2>
+
+    <!-- Heartfelt Message -->
+    <p class="text-lg md:text-xl text-gray-800 leading-relaxed font-medium">
+      You are the reason behind my happiest moments.  
+      On your birthday, I just want to remind you how special you are to me.  
+      My world shines brighter because of you. 💖
+    </p>
+  </div>
+
+  <!-- Decorative Shapes -->
+  <div class="absolute top-10 left-10 w-10 h-10 bg-pink-400 rounded-full opacity-40 animate-pulse"></div>
+  <div class="absolute bottom-16 right-16 w-16 h-16 bg-purple-300 rounded-full opacity-40 animate-bounce"></div>
+  <div class="absolute top-32 right-32 w-12 h-12 border-4 border-purple-700 rotate-45 opacity-30"></div>
+</section>
+<!-- Countdown Section -->
+<section class="w-full bg-[#FDDCC8] py-20 px-8 relative overflow-hidden">
+  <div class="max-w-4xl mx-auto text-center relative z-10">
+    <!-- Heading -->
+    <h2 class="text-3xl md:text-6xl font-bold text-purple-900 mb-8 mt-[-60px]">
+      Counting Down to Your Big Day
+    </h2>
+    <!-- Countdown Timer with Glass Effect -->
+    <div id="countdown" class="grid grid-cols-2 md:flex md:justify-center gap-4 md:space-x-6 md:gap-0 text-center max-w-2xl mx-auto">
+      <div class="backdrop-blur-md bg-white/20 border border-white/30 rounded-xl md:rounded-2xl p-4 md:p-6 shadow-xl">
+        <span id="days" class="text-2xl md:text-4xl font-extrabold text-red-500 block">00</span>
+        <p class="text-purple-900 mt-1 md:mt-2 font-semibold text-sm md:text-base">Days</p>
+      </div>
+      <div class="backdrop-blur-md bg-white/20 border border-white/30 rounded-xl md:rounded-2xl p-4 md:p-6 shadow-xl">
+        <span id="hours" class="text-2xl md:text-4xl font-extrabold text-purple-900 block">00</span>
+        <p class="text-purple-900 mt-1 md:mt-2 font-semibold text-sm md:text-base">Hours</p>
+      </div>
+      <div class="backdrop-blur-md bg-white/20 border border-white/30 rounded-xl md:rounded-2xl p-4 md:p-6 shadow-xl">
+        <span id="minutes" class="text-2xl md:text-4xl font-extrabold text-purple-900 block">00</span>
+        <p class="text-purple-900 mt-1 md:mt-2 font-semibold text-sm md:text-base">Minutes</p>
+      </div>
+      <div class="backdrop-blur-md bg-white/20 border border-white/30 rounded-xl md:rounded-2xl p-4 md:p-6 shadow-xl">
+        <span id="seconds" class="text-2xl md:text-4xl font-extrabold text-purple-900 block">00</span>
+        <p class="text-purple-900 mt-1 md:mt-2 font-semibold text-sm md:text-base">Seconds</p>
+      </div>
+    </div>
+  </div>
+  <!-- Decorative Shapes -->
+  <div class="absolute top-10 left-10 w-10 h-10 bg-purple-400 rounded-full opacity-40 animate-bounce"></div>
+  <div class="absolute bottom-16 right-16 w-16 h-16 bg-pink-400 rounded-full opacity-40 animate-pulse"></div>
+</section>
+<!-- Gift Surprise Section -->
+<section class="w-full bg-[#FFE6D9] py-20 px-8">
+  <div class="max-w-5xl mx-auto text-center">
+    <!-- Heading -->
+    <h2 class="text-3xl md:text-4xl font-bold text-purple-900 mb-12">
+      What Awaits You
+    </h2>
+
+    <!-- Gift Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      <!-- Cake -->
+      <div onclick="showSurprise('cake')" 
+           class="bg-white shadow-md rounded-2xl p-6 cursor-pointer hover:scale-105 transition transform duration-300">
+        <div class="text-5xl">🎂</div>
+        <h3 class="text-lg font-semibold text-purple-800 mt-4">Cake</h3>
+        <p class="text-purple-600 mt-2 text-sm">Handpicked just for you</p>
+      </div>
+
+      <!-- Gift -->
+      <div onclick="showSurprise('gift')" 
+           class="bg-white shadow-md rounded-2xl p-6 cursor-pointer hover:scale-105 transition transform duration-300">
+        <div class="text-5xl">🎁</div>
+        <h3 class="text-lg font-semibold text-purple-800 mt-4">Gift</h3>
+        <p class="text-purple-600 mt-2 text-sm">A surprise wrapped with love</p>
+      </div>
+
+      <!-- Flowers -->
+      <div onclick="showSurprise('flowers')" 
+           class="bg-white shadow-md rounded-2xl p-6 cursor-pointer hover:scale-105 transition transform duration-300">
+        <div class="text-5xl">🌹</div>
+        <h3 class="text-lg font-semibold text-purple-800 mt-4">Flowers</h3>
+        <p class="text-purple-600 mt-2 text-sm">To brighten your day</p>
+      </div>
+
+      <!-- Letter -->
+      <div onclick="showSurprise('letter')" 
+           class="bg-white shadow-md rounded-2xl p-6 cursor-pointer hover:scale-105 transition transform duration-300">
+        <div class="text-5xl">💌</div>
+        <h3 class="text-lg font-semibold text-purple-800 mt-4">Letter</h3>
+        <p class="text-purple-600 mt-2 text-sm">Words from the heart</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Modal -->
+<div id="surpriseModal" 
+     class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-2xl p-8 max-w-md w-full text-center relative">
+    <button onclick="closeSurprise()" 
+            class="absolute top-2 right-3 text-xl text-gray-600 hover:text-red-500">&times;</button>
+    <div id="surpriseContent" class="text-6xl mb-4"></div>
+    <h3 id="surpriseTitle" class="text-2xl font-bold text-purple-900"></h3>
+    <p id="surpriseMsg" class="text-purple-700 mt-2"></p>
+  </div>
+</div>
+
+<!-- Final Love Note Section -->
+<section class="relative w-full bg-[#FFF8F3] py-20 px-6">
+  <div class="max-w-3xl mx-auto text-center">
+    <!-- Heading -->
+    <h2 class="text-3xl md:text-4xl font-bold text-pink-800 mb-8">
+      From My Heart to Yours
+    </h2>
+
+    <!-- Diary Styled Note -->
+    <div class="bg-white shadow-lg rounded-2xl p-8 border-4 border-pink-200 relative font-serif leading-relaxed text-lg text-gray-800">
+      <p class="mb-4">
+        My Love,  
+        On this special day, I just want to remind you how deeply you mean to me.  
+        Every moment with you feels like magic, and I’m so grateful for the love, laughter, and happiness you bring into my life.  
+      </p>
+      <p class="mb-4">
+        You are my sunshine on cloudy days, my smile during tough times, and my forever inspiration.  
+        No words could ever capture how much I adore you, but I promise to keep showing you every single day.  
+      </p>
+      <p class="font-bold text-pink-700 text-xl mt-6">
+        Happy Birthday, My Love ❤️
+      </p>
+    </div>
+  </div>
+
+  <!-- Fireworks Canvas -->
+  <canvas id="fireworks" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+</section>
+      
+
+      <!-- Footer Section -->
+<footer class="bg-pink-100 text-gray-700 py-10 px-6 relative">
+  <div class="max-w-5xl mx-auto text-center">
+    <!-- Cute message -->
+    <p class="text-lg md:text-xl font-semibold text-pink-800">
+      Made with ❤️ just for you
+    </p>
+
+    <!-- Divider -->
+    <div class="w-24 h-1 bg-pink-400 rounded-full mx-auto my-4"></div>
+
+    <!-- Social / Contact Links (optional) -->
+    <div class="flex justify-center space-x-6 mb-6">
+      <a href="#" class="text-pink-600 hover:text-pink-800 text-xl">💌</a>
+      <a href="#" class="text-pink-600 hover:text-pink-800 text-xl">🎂</a>
+      <a href="#" class="text-pink-600 hover:text-pink-800 text-xl">🌹</a>
+    </div>
+
+    <!-- Copyright -->
+    <p class="text-sm text-gray-600">
+      © 2025 | All Right Reserved | @farhaanansari.i | A Birthday Surprise You'll Never Forget ✨
+    </p>
+  </div>
+
+  <!-- Floating hearts animation -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="animate-bounce text-pink-400 text-2xl absolute left-10 bottom-6">💖</div>
+    <div class="animate-bounce text-pink-500 text-xl absolute right-10 bottom-16 delay-200">💕</div>
+    <div class="animate-bounce text-pink-400 text-3xl absolute left-1/2 bottom-3 delay-500">💞</div>
+  </div>
+</footer>
+
+   <script>
+        // GSAP Animations
+        gsap.registerPlugin();
+
+        // Initial setup - hide elements
+        gsap.set("#leftContent > *", { x: -100, opacity: 0 });
+        gsap.set("#imageFrame", { scale: 0, opacity: 0 });
+
+        // Timeline for entrance animations
+        const tl = gsap.timeline();
+
+        // Animate left content
+        tl.to("#leftContent > *", {
+            x: 0,
+            opacity: 1,
+            duration: 0.8,
+            stagger: 0.2,
+            ease: "power3.out"
+        })
+        // Animate image
+        .to("#imageFrame", {
+            scale: 1,
+            opacity: 1,
+            duration: 1,
+            ease: "back.out(1.7)"
+        }, "-=0.5");
+
+        // Sparkle Animation - Mobile Responsive
+        function createSparkle() {
+            const sparkleContainer = document.getElementById('sparkleContainer');
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            
+            // Get container dimensions for responsive positioning
+            const containerRect = sparkleContainer.getBoundingClientRect();
+            const containerSize = Math.min(containerRect.width, containerRect.height);
+            const radius = (containerSize / 2) * 0.9; // 90% of container radius
+            const centerX = containerSize / 2;
+            const centerY = containerSize / 2;
+            
+            // Random position around the circle
+            const angle = Math.random() * 2 * Math.PI;
+            const sparkleRadius = radius + Math.random() * 30;
+            const x = centerX + sparkleRadius * Math.cos(angle) - 4; // -4 to center sparkle
+            const y = centerY + sparkleRadius * Math.sin(angle) - 4;
+            
+            sparkle.style.left = x + 'px';
+            sparkle.style.top = y + 'px';
+            
+            sparkleContainer.appendChild(sparkle);
+            
+            // Animate sparkle
+            gsap.fromTo(sparkle, 
+                { 
+                    opacity: 0, 
+                    scale: 0,
+                    rotation: 0 
+                },
+                { 
+                    opacity: 1, 
+                    scale: 1,
+                    rotation: 180,
+                    duration: 0.6,
+                    ease: "power2.out",
+                    onComplete: () => {
+                        gsap.to(sparkle, {
+                            opacity: 0,
+                            scale: 0,
+                            duration: 0.4,
+                            ease: "power2.in",
+                            onComplete: () => sparkle.remove()
+                        });
+                    }
+                }
+            );
+        }
+
+        // Create sparkles on load and repeat
+        function createSparkleGroup() {
+            // Reduce sparkles on mobile
+            const sparkleCount = window.innerWidth < 768 ? 4 : 6;
+            for (let i = 0; i < sparkleCount; i++) {
+                setTimeout(() => createSparkle(), i * 100);
+            }
+        }
+
+        // Initial sparkles after image loads
+        setTimeout(createSparkleGroup, 1500);
+
+        // Repeat sparkles every 4 seconds
+        setInterval(createSparkleGroup, 4000);
+
+        // Button hover effects
+        const getStartedBtn = document.getElementById('getStartedBtn');
+        
+        getStartedBtn.addEventListener('mouseenter', () => {
+            gsap.to(getStartedBtn, {
+                scale: 1.05,
+                duration: 0.3,
+                ease: "power2.out"
+            });
+        });
+
+        getStartedBtn.addEventListener('mouseleave', () => {
+            gsap.to(getStartedBtn, {
+                scale: 1,
+                duration: 0.3,
+                ease: "power2.out"
+            });
+        });
+
+        // Mobile Menu Functionality
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuLine1 = document.getElementById('menuLine1');
+        const menuLine2 = document.getElementById('menuLine2');
+        const menuLine3 = document.getElementById('menuLine3');
+        let isMenuOpen = false;
+
+        function toggleMobileMenu() {
+            isMenuOpen = !isMenuOpen;
+            
+            if (isMenuOpen) {
+                mobileMenu.classList.add('open');
+                // Animate hamburger to X
+                gsap.to(menuLine1, { rotation: 45, y: 6, duration: 0.3 });
+                gsap.to(menuLine2, { opacity: 0, duration: 0.3 });
+                gsap.to(menuLine3, { rotation: -45, y: -6, duration: 0.3 });
+                // Prevent body scroll
+                document.body.style.overflow = 'hidden';
+            } else {
+                mobileMenu.classList.remove('open');
+                // Animate X back to hamburger
+                gsap.to(menuLine1, { rotation: 0, y: 0, duration: 0.3 });
+                gsap.to(menuLine2, { opacity: 1, duration: 0.3 });
+                gsap.to(menuLine3, { rotation: 0, y: 0, duration: 0.3 });
+                // Restore body scroll
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+
+        // Close mobile menu when clicking on menu links
+        mobileMenu.addEventListener('click', (e) => {
+            if (e.target.tagName === 'A') {
+                toggleMobileMenu();
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            // Close mobile menu if window is resized to desktop
+            if (window.innerWidth >= 1024 && isMenuOpen) {
+                toggleMobileMenu();
+            }
+            
+            // Refresh sparkle animation on resize
+            if (window.innerWidth !== lastWindowWidth) {
+                lastWindowWidth = window.innerWidth;
+                // Clear existing sparkles
+                const existingSparkles = document.querySelectorAll('.sparkle');
+                existingSparkles.forEach(sparkle => sparkle.remove());
+            }
+        });
+
+        let lastWindowWidth = window.innerWidth;        // Touch events for mobile button interactions
+        getStartedBtn.addEventListener('touchstart', () => {
+            gsap.to(getStartedBtn, {
+                scale: 0.95,
+                duration: 0.1,
+                ease: "power2.out"
+            });
+        });
+
+        getStartedBtn.addEventListener('touchend', () => {
+            gsap.to(getStartedBtn, {
+                scale: 1,
+                duration: 0.3,
+                ease: "back.out(1.7)"
+            });
+        });
+
+        // Prevent context menu on long press for mobile
+        getStartedBtn.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        // Optimize animations for mobile performance
+        if (window.innerWidth < 768) {
+            // Reduce motion for better mobile performance
+            const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+            if (mediaQuery.matches) {
+                // Disable floating animations for users who prefer reduced motion
+                const floatingElements = document.querySelectorAll('.floating, .floating-delayed, .floating-slow');
+                floatingElements.forEach(el => {
+                    el.style.animation = 'none';
+                });
+            }
+        }
+
+        <!-- Countdown Script -->
+
+  // Set target date (replace with her actual birthday)
+  const targetDate = new Date("Sep 30, 2025 00:00:00").getTime();
+
+  const countdown = setInterval(function() {
+    const now = new Date().getTime();
+    const distance = targetDate - now;
+
+    if (distance < 0) {
+      clearInterval(countdown);
+      document.getElementById("countdown").innerHTML = 
+        "<p class='text-2xl font-semibold text-purple-900'>🎉 Happy Birthday! 🎂</p>";
+      return;
+    }
+
+    // Time calculations
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    // Display results
+    document.getElementById("days").innerText = days;
+    document.getElementById("hours").innerText = hours;
+    document.getElementById("minutes").innerText = minutes;
+    document.getElementById("seconds").innerText = seconds;
+  }, 1000);
+
+  function showSurprise(type) {
+    const modal = document.getElementById("surpriseModal");
+    const content = document.getElementById("surpriseContent");
+    const title = document.getElementById("surpriseTitle");
+    const msg = document.getElementById("surpriseMsg");
+
+    // Set surprise content
+    if(type === "cake") {
+      content.innerHTML = "🎂";
+      title.innerText = "Birthday Cake!";
+      msg.innerText = "Make a wish... and watch the candles light up! 🕯️";
+    } else if(type === "gift") {
+      content.innerHTML = "🎁";
+      title.innerText = "A Special Gift!";
+      msg.innerText = "Wrapped with love just for you 💝";
+    } else if(type === "flowers") {
+      content.innerHTML = "🌹";
+      title.innerText = "Beautiful Flowers!";
+      msg.innerText = "A bloom that speaks love ❤️";
+    } else if(type === "letter") {
+      content.innerHTML = "💌";
+      title.innerText = "A Love Letter!";
+      msg.innerText = "Straight from the heart, for you 💖";
+    }
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    // Animation
+    gsap.fromTo("#surpriseContent", {scale:0, opacity:0}, {scale:1.3, opacity:1, duration:0.6, ease:"back.out(2)"});
+    gsap.to("#surpriseContent", {scale:1, duration:0.3, delay:0.6});
+  }
+
+  function closeSurprise() {
+    const modal = document.getElementById("surpriseModal");
+    modal.classList.add("hidden");
+  }
+                 
+
+
+
+            // Fireworks effect
+const canvas = document.getElementById('fireworks');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+function random(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function createFirework(x, y) {
+  let count = 100;
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: x,
+      y: y,
+      angle: random(0, Math.PI * 2),
+      speed: random(2, 6),
+      radius: random(2, 4),
+      alpha: 1,
+      decay: random(0.01, 0.02),
+      color: `hsl(${random(0, 360)}, 100%, 60%)`
+    });
+  }
+}
+
+function update() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  particles.forEach((p, i) => {
+    p.x += Math.cos(p.angle) * p.speed;
+    p.y += Math.sin(p.angle) * p.speed;
+    p.alpha -= p.decay;
+
+    if (p.alpha <= 0) particles.splice(i, 1);
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${hexToRgb(p.color)}, ${p.alpha})`;
+    ctx.fill();
+  });
+
+  requestAnimationFrame(update);
+}
+
+function hexToRgb(hsl) {
+  return hsl.match(/\d+/g).slice(0, 3).join(", ");
+}
+
+// Launch fireworks every 2 seconds
+setInterval(() => {
+  createFirework(random(100, canvas.width - 100), random(100, canvas.height / 2));
+}, 2000);
+
+update();
+    </script>
+</body>
+</html>
